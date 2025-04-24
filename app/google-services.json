@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1024667755842",
+    "project_id": "qlbh-dcd64",
+    "storage_bucket": "qlbh-dcd64.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024667755842:android:f947d3e9e6fefb710454db",
+        "android_client_info": {
+          "package_name": "com.example.adminlaptop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD42tZROLWtfzOLrQk9caAg8k3aTqbaeEk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024667755842:android:08af87a6b89ce8f10454db",
+        "android_client_info": {
+          "package_name": "com.example.adminlaptopstore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD42tZROLWtfzOLrQk9caAg8k3aTqbaeEk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
