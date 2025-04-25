@@ -20,5 +20,5 @@ data class OrderDataModels(
     val pay: String = "",
     val statusBill: String = "Đang kiểm duyệt",
     val date: String = SimpleDateFormat("dd/MM/yyyy", getDefault()).format(System.currentTimeMillis()),
-    val orderId: String = ""
+    var orderId: String = ""
 )

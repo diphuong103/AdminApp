@@ -1,8 +1,7 @@
 package com.example.adminlaptopstore.model
 
-import com.google.android.gms.identity.intents.model.UserAddress
-
-data class UserAdress(
+data class UserAddress(
+    var userId: String = "",
     var firstName : String = "",
     var lastName : String = "",
     var address : String = "",

@@ -4,6 +4,7 @@ import com.example.adminlaptopstore.firebase.FirebaseManager.firestore
 import com.example.adminlaptopstore.model.CategoryDataModels
 import com.example.adminlaptopstore.model.OrderDataModels
 import com.example.adminlaptopstore.model.ProductDataModels
+import com.example.adminlaptopstore.model.UserAddress
 import com.example.adminlaptopstore.navigation.BottomNavItem
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -303,5 +304,106 @@ object FirebaseManager {
             .addOnSuccessListener { onComplete(true) }
             .addOnFailureListener { onComplete(false) }
     }
+
+
+/////////////////// User ///////////////////
+
+    // Get all users - more efficient version with get() instead of real-time listener
+    fun getAllUsers(onSuccess: (List<UserAddress>) -> Unit, onFailure: (Exception) -> Unit) {
+        firestore.collection("Users")
+            .get()
+            .addOnSuccessListener { result ->
+                val usersList = result.documents.mapNotNull { doc ->
+                    try {
+                        val userId = doc.id
+                        val user = doc.toObject(UserAddress::class.java)
+                        user?.userId = userId
+                        user
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                onSuccess(usersList)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+    fun getUserById(
+        userId: String,
+        onSuccess: (UserAddress?) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        firestore.collection("Users").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                val user = document.toObject(UserAddress::class.java)
+                user?.userId = document.id
+                onSuccess(user)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+    fun updateUser(user: UserAddress, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val userId = user.userId
+
+        val userMap = hashMapOf(
+            "firstName" to user.firstName,
+            "lastName" to user.lastName,
+            "address" to user.address,
+            "city" to user.city,
+            "state" to user.state,
+            "pinCode" to user.pinCode,
+            "country" to user.country,
+            "phoneNumber" to user.phoneNumber
+        )
+
+        // Removed unnecessary cast to Map<String, Any>
+        firestore.collection("Users").document(userId)
+            .update(userMap as Map<String, Any>)
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+    fun deleteUser(userId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        firestore.collection("Users").document(userId)
+            .delete()
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+    // Get user orders
+    fun getUserOrders(
+        userId: String,
+        onSuccess: (List<OrderDataModels>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        firestore.collection("Orders")
+            .whereEqualTo("userId", userId)
+            .get()
+            .addOnSuccessListener { result ->
+                val ordersList = result.documents.mapNotNull { doc ->
+                    val order = doc.toObject(OrderDataModels::class.java)
+                    order?.orderId = doc.id
+                    order
+                }
+                onSuccess(ordersList)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
 }
+
 

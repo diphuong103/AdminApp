@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.adminlaptopstore.ViewModel.UserViewModel
 import com.example.adminlaptopstore.navigation.BottomNavItem
 import com.example.adminlaptopstore.viewmodel.CategoryViewModel
 import com.example.adminlaptopstore.viewmodel.ProductViewModel
@@ -172,7 +173,27 @@ fun MainScreen(onLogout: () -> Unit) {
                 SettingsScreen(navController = navController)
             }
 
-            composable(BottomNavItem.UserSc.route) { UserManagementScreen() }
+
+            // User
+
+            // USER MANAGEMENT
+            composable(BottomNavItem.UserSc.route) {
+                UserManagementScreen(
+                    navController = navController // Không cần truyền `userViewModel` nữa
+                )
+            }
+
+            composable(
+                route = "user_detail/{userId}",
+                arguments = listOf(navArgument("userId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                UserDetailScreen(
+                    userId = userId,
+                    navController = navController
+                )
+            }
+
             composable(BottomNavItem.Banner.route) { BannerScreen() }
             composable(BottomNavItem.Warehouse.route) { WarehouseScreen() }
             composable(BottomNavItem.Revenue.route) { RevenueScreen() }

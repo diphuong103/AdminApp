@@ -53,6 +53,7 @@ fun OrderDetailsScreen(
                 // Order Info
                 SectionTitle("Thông tin đơn hàng")
                 DetailItem("Mã đơn hàng", if (order.orderId.isNotBlank()) order.orderId else order.productId)
+                DetailItem("Mã khách hàng", order.userId)
                 DetailItem("Sản phẩm", order.name)
                 DetailItem("Số lượng", order.quantity.toString())
                 DetailItem("Tổng tiền", formatCurrencyVND(order.totalPrice))

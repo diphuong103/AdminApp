@@ -129,6 +129,7 @@ fun OrderCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = order.name, fontWeight = FontWeight.Bold)
+                    Text(text = "Mã Khách hàng: ${order.userId}")
                     Text(text = "Khách hàng: ${order.lastName} ${order.firstName}")
                     Text(text = "Tổng tiền: ${formatCurrencyVND(order.totalPrice)} VND")
 
