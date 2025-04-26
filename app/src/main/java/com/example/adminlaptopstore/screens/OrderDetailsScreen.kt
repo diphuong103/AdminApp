@@ -56,7 +56,7 @@ fun OrderDetailsScreen(
                 DetailItem("Mã khách hàng", order.userId)
                 DetailItem("Sản phẩm", order.name)
                 DetailItem("Số lượng", order.quantity.toString())
-                DetailItem("Tổng tiền", formatCurrencyVND(order.totalPrice))
+                DetailItem("Tổng tiền", formatCurrencyVND(order.totalPrice) + "VND")
                 DetailItem("Ngày đặt", order.date)
 
                 // Status

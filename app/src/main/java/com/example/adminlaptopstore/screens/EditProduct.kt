@@ -2,10 +2,13 @@ package com.example.adminlaptopstore.screens
 
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -13,15 +16,21 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import coil.transform.CircleCropTransformation
 import com.example.adminlaptopstore.viewmodel.CategoryViewModel
 import com.example.adminlaptopstore.viewmodel.ProductViewModel
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.net.Uri
 
 
 
@@ -39,6 +48,15 @@ fun EditProductScreen(
     val categories by categoryViewModel.categories.collectAsState()
     val statusOptions = listOf("Còn hàng", "Hết hàng")
 
+    var selectedImageUri by remember { mutableStateOf<android.net.Uri?>(null) }
+
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+    }
+
     // Check if product found
     if (product == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -48,7 +66,7 @@ fun EditProductScreen(
     }
 
     var name by remember { mutableStateOf(product.name) }
-    var price by remember { mutableStateOf(product.price.toString()) }
+    var price by remember { mutableStateOf(formatCurrencyVND(product.price).toString()) }
     var shortDesc by remember { mutableStateOf(product.short_desc) }
     var longDesc by remember { mutableStateOf(product.long_desc) }
     var quantity by remember { mutableStateOf(product.quantity.toString()) }
@@ -256,27 +274,38 @@ fun EditProductScreen(
                     }
                 }
 
-                OutlinedTextField(
-                    value = imageUrl,
-                    onValueChange = { imageUrl = it },
-                    label = { Text("URL hình ảnh") },
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Ảnh sản phẩm",
+                        style = MaterialTheme.typography.subtitle2,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
 
-                // Image preview
-                if (imageUrl.isNotEmpty()) {
                     Image(
-                        painter = rememberAsyncImagePainter(imageUrl),
-                        contentDescription = "Product Image Preview",
+                        painter = rememberAsyncImagePainter(model = selectedImageUri ?: imageUrl),
+                        contentDescription = "Ảnh sản phẩm",
                         modifier = Modifier
-                            .size(120.dp)
-                            .padding(vertical = 8.dp)
+                            .size(140.dp)
+                            .clip(CircleShape)
+                            .clickable {
+                                imagePickerLauncher.launch("image/*")
+                            }
+                    )
+
+                    Text(
+                        text = "Nhấn vào ảnh để thay đổi",
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
-            }
-        }
-
-        if (isLoading) {
+                
+                if (isLoading) {
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
@@ -311,7 +340,7 @@ fun EditProductScreen(
                         target = target,
                         category = category,
                         status = finalStatus,
-                        image = imageUrl
+                        image = selectedImageUri?.toString() ?: imageUrl
                     )
 
                     productViewModel.updateProduct(updatedProduct) { success ->
@@ -329,4 +358,4 @@ fun EditProductScreen(
             }
         }
     }
-}
+}}}

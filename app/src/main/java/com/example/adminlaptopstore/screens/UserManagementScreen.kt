@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,21 +18,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.adminlaptopstore.ViewModel.UserViewModel
-import com.example.adminlaptopstore.model.UserAddress
+import com.example.adminlaptopstore.ViewModel.UserDataViewModel
+import com.example.adminlaptopstore.model.UserData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserManagementScreen(
     navController: NavController,
-    userViewModel: UserViewModel = viewModel()
+    userViewModel: UserDataViewModel = viewModel(),
+    onViewOrderDetails: (String) -> Unit,
 ) {
     val users by userViewModel.users.collectAsState()
+    val userOrders by userViewModel.userOrders.collectAsState()
     val isLoading by userViewModel.isLoading.collectAsState()
     val errorMessage by userViewModel.errorMessage.collectAsState()
 
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-    var showDeleteDialog by remember { mutableStateOf<UserAddress?>(null) }
+    var showDeleteDialog by remember { mutableStateOf<UserData?>(null) }
 
     LaunchedEffect(key1 = true) {
         userViewModel.loadAllUsers()
@@ -107,7 +110,8 @@ fun UserManagementScreen(
                     val filteredUsers = users.filter {
                         val fullName = "${it.firstName} ${it.lastName}".lowercase()
                         fullName.contains(searchQuery.text.lowercase()) ||
-                                it.phoneNumber.contains(searchQuery.text)
+                                it.phoneNumber.contains(searchQuery.text) ||
+                                it.email.contains(searchQuery.text.lowercase())
                     }
 
                     if (filteredUsers.isEmpty()) {
@@ -131,7 +135,14 @@ fun UserManagementScreen(
                         UserListItem(
                             user = user,
                             onViewDetail = {
+                                // Load user details and navigate to detail screen
+                                userViewModel.getUserByIdData(user.userId)
                                 navController.navigate("user_detail/${user.userId}")
+                            },
+                            onViewOrders = {
+                                // Load user orders and navigate to orders screen
+                                userViewModel.getUserByIdData(user.userId)
+                                navController.navigate("user_orders/${user.userId}")
                             },
                             onDeleteUser = {
                                 showDeleteDialog = user
@@ -152,7 +163,7 @@ fun UserManagementScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        userViewModel.deleteUser(user.userId) { success ->
+                        userViewModel.deleteUserData(user.userId) { success ->
                             showDeleteDialog = null
                         }
                     }
@@ -171,8 +182,9 @@ fun UserManagementScreen(
 
 @Composable
 fun UserListItem(
-    user: UserAddress,
+    user: UserData,
     onViewDetail: () -> Unit,
+    onViewOrders: () -> Unit,
     onDeleteUser: () -> Unit
 ) {
     Card(
@@ -181,34 +193,50 @@ fun UserListItem(
             .padding(vertical = 8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = "${user.firstName} ${user.lastName}", fontSize = 18.sp)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = user.phoneNumber, fontSize = 14.sp, color = Color.Gray)
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = "${user.address}, ${user.city}, ${user.state}",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = "Mã khách hàng :" +user.userId, fontSize = 16.sp, color = Color.Red)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(text = "Tên :" + "${user.firstName} ${user.lastName}", fontSize = 18.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Email :" + user.email, fontSize = 14.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(text = "SĐT :" +user.phoneNumber, fontSize = 14.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(2.dp))
 
-            IconButton(onClick = onViewDetail) {
-                Icon(Icons.Default.Info, contentDescription = "Xem chi tiết")
-            }
+                    Text(
+                        text = "Địa chỉ :" + user.address,
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
 
-            IconButton(onClick = onDeleteUser) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = "Xóa người dùng",
-                    tint = Color.Red
-                )
+                Column {
+                    IconButton(onClick = onViewDetail) {
+                        Icon(Icons.Default.Info, contentDescription = "Xem chi tiết")
+                    }
+
+                    IconButton(onClick = onViewOrders) {
+                        Icon(Icons.Default.ShoppingCart, contentDescription = "Xem đơn hàng")
+                    }
+
+                    IconButton(onClick = onDeleteUser) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Xóa người dùng",
+                            tint = Color.Red
+                        )
+                    }
+                }
             }
         }
     }

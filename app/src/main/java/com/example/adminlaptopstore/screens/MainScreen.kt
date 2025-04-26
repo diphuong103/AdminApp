@@ -9,7 +9,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.example.adminlaptopstore.ViewModel.UserViewModel
 import com.example.adminlaptopstore.navigation.BottomNavItem
 import com.example.adminlaptopstore.viewmodel.CategoryViewModel
 import com.example.adminlaptopstore.viewmodel.ProductViewModel
@@ -177,12 +176,33 @@ fun MainScreen(onLogout: () -> Unit) {
             // User
 
             // USER MANAGEMENT
+//            composable(BottomNavItem.UserSc.route) {
+//                UserManagementScreen(
+//                    navController = navController
+//                )
+//            }
+//
+//            composable(
+//                route = "user_detail/{userId}",
+//                arguments = listOf(navArgument("userId") { type = NavType.StringType })
+//            ) { backStackEntry ->
+//                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+//                UserDetailScreen(
+//                    userId = userId,
+//                    navController = navController
+//                )
+//            }
+            // USER MANAGEMENT
             composable(BottomNavItem.UserSc.route) {
                 UserManagementScreen(
-                    navController = navController // Không cần truyền `userViewModel` nữa
+                    navController = navController,
+                    onViewOrderDetails = { orderId ->
+                        navController.navigate("order_details/$orderId")
+                    }
                 )
             }
 
+            // USER DETAIL
             composable(
                 route = "user_detail/{userId}",
                 arguments = listOf(navArgument("userId") { type = NavType.StringType })
@@ -190,8 +210,24 @@ fun MainScreen(onLogout: () -> Unit) {
                 val userId = backStackEntry.arguments?.getString("userId") ?: ""
                 UserDetailScreen(
                     userId = userId,
-                    navController = navController
+                    navController = navController,
+                    onViewOrderDetails = { orderId ->
+                        navController.navigate("order_details/$orderId")
+                    }
                 )
+            }
+
+            // USER ORDERS
+            composable(
+                route = "user_orders/{userId}",
+                arguments = listOf(navArgument("userId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId") ?: ""
+                // Add your UserOrdersScreen here if you have one
+                // For now, we'll navigate back
+                LaunchedEffect(key1 = Unit) {
+                    navController.popBackStack()
+                }
             }
 
             composable(BottomNavItem.Banner.route) { BannerScreen() }

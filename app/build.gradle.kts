@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.firebase.database)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.animation.core.lint)
+    implementation(libs.volley)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -85,6 +86,9 @@ dependencies {
     implementation (libs.androidx.lifecycle.viewmodel.ktx)
     implementation (libs.androidx.lifecycle.viewmodel.ktx.v262)
     implementation (libs.androidx.lifecycle.livedata.ktx)
+
+    implementation(libs.coil.compose.v240)
+
 
 
 
