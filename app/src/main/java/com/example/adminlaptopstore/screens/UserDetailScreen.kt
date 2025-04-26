@@ -286,33 +286,36 @@ fun OrderItem(order: OrderDataModels) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(text = "Tên sản phẩm: ${order.name}")
+            Text(text = "Sản phầm: ${order.name}")
             Text(text = "Số lượng: ${order.quantity}")
-            Text(text = "Tổng giá: ${formatCurrencyVND(order.totalPrice)} VND} đ")
+            Text(text = "Tổng giá: ${formatCurrencyVND(order.totalPrice)} VND ")
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = "Trạng thái đơn hàng: ${order.statusBill}",
-                color = when(order.statusBill) {
-                    "Đang kiểm duyệt" -> Color(0xFFFFA000)
-                    "Đã xác nhận" -> Color(0xFF4CAF50)
-                    "Đã hủy" -> Color.Red
-                    else -> Color.Gray
-                },
-                fontWeight = FontWeight.Medium
-            )
+            Column(modifier = Modifier.padding(8.dp)) {
+                // Hiển thị trạng thái đơn hàng
+                Text(
+                    text = "Trạng thái đơn hàng: ${order.statusBill}",
+                    color = when (order.statusBill) {
+                        "Đang kiểm duyệt" -> Color(0xFFFFFA000)
+                        "Đã xác nhận" -> Color(0xFF4CAF50)
+                        "Đã hủy" -> Color.Red
+                        else -> Color.Gray
+                    },
+                    fontWeight = FontWeight.Medium
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "Phương thức thanh toán: ${order.pay}",
-                fontSize = 14.sp
-            )
-            Text(
-                text = "Phương thức vận chuyển: ${order.transport}",
-                fontSize = 14.sp
-            )
+                Text(
+                    text = "Phương thức thanh toán: ${order.pay}",
+                    fontSize = 14.sp
+                )
+                Text(
+                    text = "Phương thức vận chuyển: ${order.transport}",
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }

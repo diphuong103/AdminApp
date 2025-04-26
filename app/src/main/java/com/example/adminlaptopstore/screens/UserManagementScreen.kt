@@ -43,7 +43,7 @@ fun UserManagementScreen(
                 title = { Text("Quản lý người dùng") },
                 actions = {
                     IconButton(onClick = { userViewModel.loadAllUsers() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "làm mới")
+                        Icon(Icons.Default.Refresh, contentDescription = "Làm mới")
                     }
                 }
             )
@@ -88,7 +88,7 @@ fun UserManagementScreen(
                             )
                         }
                         Button(onClick = { userViewModel.retryLastOperation() }) {
-                            Text("Thử lại")
+                            Text("Làm mới")
                         }
                     }
                 }
@@ -157,12 +157,12 @@ fun UserManagementScreen(
                         }
                     }
                 ) {
-                    Text("Xách nhận")
+                    Text("Xác nhận")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = null }) {
-                    Text("Hủy")
+                    Text("Hủy bỏ")
                 }
             }
         )

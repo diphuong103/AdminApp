@@ -82,6 +82,9 @@ dependencies {
     implementation (libs.androidx.ui.v150)
     implementation (libs.androidx.material.v150)
     implementation(libs.androidx.navigation.compose.v277)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx.v262)
+    implementation (libs.androidx.lifecycle.livedata.ktx)
 
 
 
