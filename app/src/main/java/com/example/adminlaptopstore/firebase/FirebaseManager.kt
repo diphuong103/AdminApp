@@ -1,5 +1,8 @@
 package com.example.adminlaptopstore.firebase
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import com.example.adminlaptopstore.firebase.FirebaseManager.firestore
 import com.example.adminlaptopstore.model.CategoryDataModels
 import com.example.adminlaptopstore.model.OrderDataModels
@@ -9,11 +12,18 @@ import com.example.adminlaptopstore.model.UserData
 import com.example.adminlaptopstore.navigation.BottomNavItem
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
-import org.tensorflow.lite.support.label.Category
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Locale
 
 object FirebaseManager {
     val firestore = FirebaseFirestore.getInstance()
@@ -506,6 +516,144 @@ object FirebaseManager {
             }
     }
 
+
+    /////////////////////// Order revenue /////////////////
+    private val ordersCollection = firestore.collection("Orders")
+
+    // Get all orders
+    fun getOrdersRevenue(): Flow<List<OrderDataModels>> = callbackFlow {
+        val listener = ordersCollection
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val orders = snapshot?.documents?.mapNotNull { document ->
+                    val order = document.toObject(OrderDataModels::class.java)
+                    order?.orderId = document.id
+                    order
+                } ?: emptyList()
+
+                trySend(orders)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    // Get delivered orders by date range
+    fun getDeliveredOrdersByDateRange(startDate: String, endDate: String): Flow<List<OrderDataModels>> = callbackFlow {
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val startTimestamp = dateFormat.parse(startDate)?.time ?: 0
+        val endTimestamp = dateFormat.parse(endDate)?.time ?: System.currentTimeMillis()
+
+        val listener = ordersCollection
+            .whereEqualTo("statusBill", "Đã hoàn thành")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val orders = snapshot?.documents?.mapNotNull { document ->
+                    val order = document.toObject(OrderDataModels::class.java)
+                    order?.orderId = document.id
+
+                    // Filter by date
+                    val orderDate = try {
+                        dateFormat.parse(order?.date ?: "")?.time ?: 0
+                    } catch (e: Exception) {
+                        Log.e("FirebaseManager", "Lỗi parse date: ${order?.date}", e)
+                        0
+                    }
+
+                    if (order != null && orderDate in startTimestamp..endTimestamp) {
+                        order
+                    } else {
+                        null
+                    }
+                } ?: emptyList()
+
+                trySend(orders)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    // Get daily revenue data
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getDailyRevenueData(startDate: String, endDate: String): Flow<Map<String, Double>> = callbackFlow {
+        val startLocalDate = LocalDate.parse(startDate, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        val endLocalDate = LocalDate.parse(endDate, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
+        val listener = ordersCollection
+            .whereEqualTo("statusBill", "Đã hoàn thành")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                // Group orders by date
+                val dailyData = mutableMapOf<String, Double>()
+
+                snapshot?.documents?.forEach { document ->
+                    val order = document.toObject(OrderDataModels::class.java) ?: return@forEach
+
+                    try {
+                        val orderLocalDate = LocalDate.parse(order.date, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
+                        if (!orderLocalDate.isBefore(startLocalDate) && !orderLocalDate.isAfter(endLocalDate)) {
+                            dailyData[order.date] = dailyData.getOrDefault(order.date, 0.0) + order.totalPrice
+                        }
+                    } catch (e: Exception) {
+                        // Skip invalid dates
+                    }
+                }
+
+                trySend(dailyData)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    // Get monthly revenue data
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getMonthlyRevenueData(year: Int): Flow<Map<String, Double>> = callbackFlow {
+        val listener = ordersCollection
+            .whereEqualTo("statusBill", "Đã hoàn thành")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                // Group orders by month
+                val monthlyData = mutableMapOf<String, Double>()
+
+                snapshot?.documents?.forEach { document ->
+                    val order = document.toObject(OrderDataModels::class.java) ?: return@forEach
+
+                    try {
+                        val orderDate = LocalDate.parse(order.date, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
+                        if (orderDate.year == year) {
+                            val month = orderDate.monthValue
+                            val monthName = "Tháng $month"
+                            val monthKey = "$monthName/$year"
+
+                            monthlyData[monthKey] = monthlyData.getOrDefault(monthKey, 0.0) + order.totalPrice
+                        }
+                    } catch (e: Exception) {
+                        // Skip invalid dates
+                    }
+                }
+
+                trySend(monthlyData)
+            }
+
+        awaitClose { listener.remove() }
+    }
 }
 
 

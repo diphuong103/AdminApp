@@ -66,7 +66,7 @@ fun OrderDetailsScreen(
                     modifier = Modifier.padding(vertical = 4.dp)
                 ) {
                     val statusColor = when(order.statusBill) {
-                        "Đã hoàn thành" -> Color.Green
+                        "Đã hoành thành" -> Color.Green
                         "Đang kiểm duyệt" -> Color.Blue
                         "Đang xử lý" -> Color.Cyan
                         "Đang giao hàng" -> Color.Magenta

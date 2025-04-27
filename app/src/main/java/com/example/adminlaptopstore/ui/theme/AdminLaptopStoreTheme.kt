@@ -8,7 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 // Define your color palette
-private val PrimaryColor = Color(0xFF6200EE)
+val PrimaryColor = Color(0xFF6200EE)
 private val SecondaryColor = Color(0xFF03DAC6)
 private val BackgroundColor = Color(0xFFF5F5F5)
 

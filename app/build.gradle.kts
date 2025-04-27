@@ -88,8 +88,18 @@ dependencies {
     implementation (libs.androidx.lifecycle.livedata.ktx)
 
     implementation(libs.coil.compose.v240)
+    implementation(libs.mpandroidchart)
 
 
+    implementation (libs.androidx.activity.ktx)
+    implementation (libs.androidx.fragment.ktx)
 
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    implementation (libs.androidx.runtime.livedata.v150)
+    implementation (libs.androidx.lifecycle.viewmodel.compose.v261)
+    implementation (libs.androidx.lifecycle.runtime.ktx.v261)
+    implementation (libs.androidx.core)
+    implementation (libs.androidx.lifecycle.viewmodel.compose)
 
 }

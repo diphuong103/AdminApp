@@ -93,7 +93,7 @@ fun OrderScreen(
                                 viewModel.deleteOrder(id) { success ->
                                     coroutineScope.launch {
                                         scaffoldState.snackbarHostState.showSnackbar(
-                                            if (success) "Đã xóa đơn hàng" else "Không thể xóa đơn hàng"
+                                            if (success) "giao xóa đơn hàng" else "Không thể xóa đơn hàng"
                                         )
                                     }
                                 }
@@ -134,7 +134,7 @@ fun OrderCard(
                     Text(text = "Tổng tiền: ${formatCurrencyVND(order.totalPrice)} VND")
 
                     val statusColor = when(order.statusBill) {
-                        "Đã hoàn thành" -> Color.Green
+                        "Đã " -> Color.Green
                         "Đang kiểm duyệt" -> Color.Blue
                         "Đang xử lý" -> Color.Cyan
                         "Đang giao hàng" -> Color.Magenta
